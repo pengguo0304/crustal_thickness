@@ -14,7 +14,7 @@ st.title('Quantify crustal thickness using the machine learning method')
 st.subheader('Algorithm')
 st.text('Extremely Randomized Tress proposed by Geurts et al.2006')
 
-dataFile = 'CrustThickness_5Ma_Tibet_Normalized.csv' #导入训练数据
+dataFile = 'CrustThickness.csv' #导入训练数据
 data = np.loadtxt(dataFile, dtype=float, delimiter=',',comments='S')
 x,y = np.split(data, (32,), axis=1)  #分割特征和分类结果
 x = x[:,:32] 
