@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 st.markdown('Peng Guo')
 st.title('Quantify crustal thickness using the machine learning method')
-st.subheader('Algorithm')
-st.text('Extremely Randomized Tress proposed by Geurts et al.2006')
+#st.subheader('Algorithm')
+st.text('Based on the Extremely Randomized Tress algorithm proposed by Geurts et al.2006')
 
 dataFile = 'CrustThickness.csv' #导入训练数据
 data = np.loadtxt(dataFile, dtype=float, delimiter=',',comments='S')
@@ -21,9 +21,8 @@ x = x[:,:32]
 
 columns = ('SiO2','TiO2','Al2O3','FeO','MnO','MgO','Ca0','Na2O','K2O','P2O5','La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Sr', 'Y', 'Rb', 'Ba', 'Hf', 'Nb', 'Ta', 'Th','Crustal thickness')
 data = pd.DataFrame(data,columns=columns)
-if st.checkbox('Show Training data'):
-    st.subheader('Training data')
-    st.dataframe(data)
+st.subheader('Training data')
+st.dataframe(data)
 
 # In[2]
 from sklearn.ensemble import ExtraTreesRegressor
@@ -68,7 +67,7 @@ st.pyplot(fig)
 
 # In[4]
 st.subheader('Predict your own data')
-uploaded_file = st.file_uploader("Choose a csv format file")
+uploaded_file = st.file_uploader("Upload a csv file; the format refers to our training data")
 if uploaded_file is not None:
      dataframe = np.loadtxt(uploaded_file, dtype=float, delimiter=',',comments='S')
      regr.fit(x_pt,y.ravel())
