@@ -14,9 +14,9 @@ st.title('Quantify crustal thickness using the machine learning method')
 #st.subheader('Algorithm')
 st.text('Based on the Extremely Randomized Tress algorithm proposed by Geurts et al.2006')
 
-dataFile = 'CrustThickness.csv' #导入训练数据
+dataFile = 'CrustThickness.csv' 
 data = np.loadtxt(dataFile, dtype=float, delimiter=',',comments='S')
-x,y = np.split(data, (32,), axis=1)  #分割特征和分类结果
+x,y = np.split(data, (32,), axis=1) 
 x = x[:,:32] 
 
 columns = ('SiO2','TiO2','Al2O3','FeO','MnO','MgO','Ca0','Na2O','K2O','P2O5','La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Sr', 'Y', 'Rb', 'Ba', 'Hf', 'Nb', 'Ta', 'Th','Crustal thickness')
@@ -38,7 +38,7 @@ x_pt = pt.transform(x)
 
 kf10 = KFold(n_splits=10,shuffle=True) 
 regr = ExtraTreesRegressor(n_estimators=500,max_features='auto')
-y_predict = np.zeros((y.size,)) #创建预测值数组
+y_predict = np.zeros((y.size,)) 
 i=0
 for train_index,test_index in kf10.split(x_pt):
     x_train,x_test = x_pt[train_index],x_pt[test_index]
@@ -47,7 +47,7 @@ for train_index,test_index in kf10.split(x_pt):
     y_predict[test_index]=regr.predict(x_test)
 #np.savetxt('y_predict.dat',y_predict,fmt='%.2f')
 r2_test = r2_score(y,y_predict)
-RMSE = mean_squared_error(y,y_predict)**0.5 #均方根误差
+RMSE = mean_squared_error(y,y_predict)**0.5 
 
 # In[3]
 st.subheader('Modeling result')
