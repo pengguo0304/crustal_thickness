@@ -25,7 +25,6 @@ st.subheader('Training data')
 st.dataframe(data)
 
 # In[2]
-import sklearn
 from sklearn.ensemble import ExtraTreesRegressor
 import matplotlib.pyplot as plt
 from sklearn.model_selection import KFold
@@ -68,7 +67,7 @@ st.pyplot(fig)
 
 # In[4]
 st.subheader('Predict your own data')
-uploaded_file = st.file_uploader("Upload a csv file; the format refers to our training data")
+uploaded_file = st.file_uploader("Upload a csv file; The file includes contents of SiO2, TiO2, Al2O3, FeO, MnO, MgO, Ca0, Na2O, K2O, P2O5, La, Ce, Pr, Nd, Sm, Eu, Gd, Tb, Dy, Ho, Er, Tm, Yb, Lu, Sr, Y, Rb, Ba, Hf, Nb, Ta and Th")
 if uploaded_file is not None:
      dataframe = np.loadtxt(uploaded_file, dtype=float, delimiter=',',comments='S')
      regr.fit(x_pt,y.ravel())
