@@ -25,6 +25,7 @@ st.subheader('Training data')
 st.dataframe(data)
 
 # In[2]
+import sklearn
 from sklearn.ensemble import ExtraTreesRegressor
 import matplotlib.pyplot as plt
 from sklearn.model_selection import KFold
