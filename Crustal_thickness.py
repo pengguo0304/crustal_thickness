@@ -37,7 +37,7 @@ pt.fit(x)
 x_pt = pt.transform(x)
 
 kf10 = KFold(n_splits=10,shuffle=True) 
-regr = ExtraTreesRegressor(n_estimators=500,max_features='auto')
+regr = ExtraTreesRegressor(n_estimators=500,max_features=1.0)
 y_predict = np.zeros((y.size,)) 
 i=0
 for train_index,test_index in kf10.split(x_pt):
