@@ -6,6 +6,7 @@ Created on Thu May 12 16:26:28 2022
 """
 
 # In[1]
+from pandas import DataFrame
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -14,15 +15,20 @@ st.title('Quantify crustal thickness using the machine learning method')
 #st.subheader('Algorithm')
 st.text('Based on the Extremely Randomized Tress algorithm proposed by Geurts et al.2006')
 
-dataFile = 'CrustThickness.csv' 
-data = np.loadtxt(dataFile, dtype=float, delimiter=',',comments='S')
-x,y = np.split(data, (32,), axis=1) 
-x = x[:,:32] 
+dataFile = pd.read_csv('CrustThickness.csv' )
+Features = ['SiO2','TiO2','Al2O3','FeO','MnO','MgO','Ca0','Na2O','K2O','P2O5','La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Sr', 'Y', 'Rb', 'Ba', 'Hf', 'Nb', 'Ta', 'Th']
+x = DataFrame(dataFile,columns=Features)
+y = dataFile.Crustal thickness
+# dataFile = 'CrustThickness.csv' 
+#data = np.loadtxt(dataFile, dtype=float, delimiter=',',comments='S')
+#x,y = np.split(data, (32,), axis=1) 
+#x = x[:,:32] 
 
-columns = ('SiO2','TiO2','Al2O3','FeO','MnO','MgO','Ca0','Na2O','K2O','P2O5','La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Sr', 'Y', 'Rb', 'Ba', 'Hf', 'Nb', 'Ta', 'Th','Crustal thickness')
-data = pd.DataFrame(data,columns=columns)
+#columns = ('SiO2','TiO2','Al2O3','FeO','MnO','MgO','Ca0','Na2O','K2O','P2O5','La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Sr', 'Y', 'Rb', 'Ba', 'Hf', 'Nb', 'Ta', 'Th','Crustal thickness')
+#data = pd.DataFrame(data,columns=columns)
 st.subheader('Training data')
-st.dataframe(data)
+#st.dataframe(data)
+st.dataframe(dataFile)
 
 # In[2]
 from sklearn.ensemble import ExtraTreesRegressor
@@ -69,9 +75,12 @@ st.pyplot(fig)
 st.subheader('Predict your own data')
 uploaded_file = st.file_uploader("Upload a csv file; The file includes contents of SiO2, TiO2, Al2O3, FeO, MnO, MgO, Ca0, Na2O, K2O, P2O5, La, Ce, Pr, Nd, Sm, Eu, Gd, Tb, Dy, Ho, Er, Tm, Yb, Lu, Sr, Y, Rb, Ba, Hf, Nb, Ta and Th")
 if uploaded_file is not None:
-     dataframe = np.loadtxt(uploaded_file, dtype=float, delimiter=',',comments='S')
+     #dataframe = np.loadtxt(uploaded_file, dtype=float, delimiter=',',comments='S')
+     Data = pd.read_csv('uploaded_file')
+     X = DataFrame(Data,columns=Features)
      regr.fit(x_pt,y.ravel())
-     X_pt = pt.transform(dataframe)
+     #X_pt = pt.transform(dataframe)
+     X_pt = pt.transform(X)
      Predicting_results = regr.predict(X_pt)
      Predicting_thickness = pd.DataFrame(Predicting_results, columns = ['Crustal thickness/km'])
      #np.savetxt('Predicting_results.csv',Predicting_thickness,fmt='%.2f')
