@@ -18,7 +18,7 @@ st.text('Based on the Extremely Randomized Tress algorithm proposed by Geurts et
 dataFile = pd.read_csv('CrustThickness.csv' )
 Features = ['SiO2','TiO2','Al2O3','FeO','MnO','MgO','Ca0','Na2O','K2O','P2O5','La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Sr', 'Y', 'Rb', 'Ba', 'Hf', 'Nb', 'Ta', 'Th']
 x = DataFrame(dataFile,columns=Features)
-y = dataFile.Crustal thickness
+y = dataFile.Crustal_Thickness
 # dataFile = 'CrustThickness.csv' 
 #data = np.loadtxt(dataFile, dtype=float, delimiter=',',comments='S')
 #x,y = np.split(data, (32,), axis=1) 
