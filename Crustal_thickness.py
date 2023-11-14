@@ -16,7 +16,7 @@ st.title('Quantify crustal thickness using the machine learning method')
 st.text('Based on the Extremely Randomized Tress algorithm proposed by Geurts et al.2006')
 
 dataFile = pd.read_csv('CrustThickness.csv' )
-Features = ['SiO2','TiO2','Al2O3','FeO','MnO','MgO','Ca0','Na2O','K2O','P2O5','La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Sr', 'Y', 'Rb', 'Ba', 'Hf', 'Nb', 'Ta', 'Th']
+Features = ['SiO2','TiO2','Al2O3','FeO','MnO','MgO','CaO','Na2O','K2O', 'P2O5', 'La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Sr', 'Y', 'Rb', 'Ba', 'Hf', 'Nb', 'Ta' ,'Th']
 x = DataFrame(dataFile,columns=Features)
 y = dataFile.Crustal_Thickness
 #dataFile = 'CrustThickness.csv' 
@@ -51,7 +51,6 @@ for train_index,test_index in kf10.split(x_pt):
     y_train,y_test = y[train_index],y[test_index]
     regr.fit(x_train,y_train.ravel())
     y_predict[test_index]=regr.predict(x_test)
-#np.savetxt('y_predict.dat',y_predict,fmt='%.2f')
 r2_test = r2_score(y,y_predict)
 RMSE = mean_squared_error(y,y_predict)**0.5 
 
@@ -76,7 +75,7 @@ st.subheader('Predict your own data')
 uploaded_file = st.file_uploader("Upload a csv file; The file should include contents of SiO2, TiO2, Al2O3, FeO, MnO, MgO, Ca0, Na2O, K2O, P2O5, La, Ce, Pr, Nd, Sm, Eu, Gd, Tb, Dy, Ho, Er, Tm, Yb, Lu, Sr, Y, Rb, Ba, Hf, Nb, Ta and Th")
 if uploaded_file is not None:
      #dataframe = np.loadtxt(uploaded_file, dtype=float, delimiter=',',comments='S')
-     Data = pd.read_csv('uploaded_file.csv')
+     Data = pd.read_csv('uploaded_file')
      X = DataFrame(Data,columns=Features)
      regr.fit(x_pt,y.ravel())
      #X_pt = pt.transform(dataframe)
