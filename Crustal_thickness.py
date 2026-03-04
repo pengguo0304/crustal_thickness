@@ -54,40 +54,16 @@ st.pyplot(fig)
 # Predict your own data
 st.subheader('Predict your own data')
 
-# Download templates
-st.write("**Download input templates:**")
-col1, col2, col3 = st.columns(3)
-
-# Template 1: features only
-template_1 = pd.DataFrame(columns=Features)
-col1.download_button(
-    label="📥 Template (features only)",
-    data=template_1.to_csv(index=False),
-    file_name='template_features_only.csv',
+# Single download template with all optional columns labeled
+template_cols = ['Latitude (degrees, -90 to 90, optional)', 'Longitude (degrees, -180 to 180, optional)', 'Age (Ma, optional)'] + Features
+template_df = pd.DataFrame(columns=template_cols)
+st.info('Latitude, Longitude and Age are optional. If Latitude and Longitude are provided, a spatial map will be displayed. If Age is also provided, an Age vs Crustal Thickness plot will be displayed.')
+st.download_button(
+    label="📥 Download input template (CSV)",
+    data=template_df.to_csv(index=False),
+    file_name='input_template.csv',
     mime='text/csv'
 )
-
-# Template 2: with lat/lon
-template_2_cols = ['Latitude (degrees, -90 to 90)', 'Longitude (degrees, -180 to 180)'] + Features
-template_2 = pd.DataFrame(columns=template_2_cols)
-col2.download_button(
-    label="📥 Template (with Lat/Lon)",
-    data=template_2.to_csv(index=False),
-    file_name='template_with_latlon.csv',
-    mime='text/csv'
-)
-
-# Template 3: with lat/lon and age
-template_3_cols = ['Latitude (degrees, -90 to 90)', 'Longitude (degrees, -180 to 180)', 'Age (Ma)'] + Features
-template_3 = pd.DataFrame(columns=template_3_cols)
-col3.download_button(
-    label="📥 Template (with Lat/Lon/Age)",
-    data=template_3.to_csv(index=False),
-    file_name='template_with_latlon_age.csv',
-    mime='text/csv'
-)
-
-st.info('Latitude: degrees, range -90 to 90. Longitude: degrees, range -180 to 180. Age: Ma (million years ago). These three columns are optional.')
 
 uploaded_file = st.file_uploader(
     "Upload a CSV file with the following features: " + ", ".join(Features) + ". No NaN values allowed. Latitude, Longitude and Age columns are optional.",
@@ -101,7 +77,7 @@ if uploaded_file is not None:
     st.write("**Preview of uploaded data:**")
     st.dataframe(Data.head())
 
-    # Check for missing columns
+    # Check for missing feature columns
     missing_features = [f for f in Features if f not in Data.columns]
     if missing_features:
         st.error(f"Missing columns: {missing_features}. Please check your file.")
@@ -171,6 +147,7 @@ if uploaded_file is not None:
             mime='text/csv'
         )
      
+
 
 
 
