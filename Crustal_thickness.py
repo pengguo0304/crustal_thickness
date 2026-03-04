@@ -26,7 +26,7 @@ y = dataFile.Crustal_Thickness
 st.subheader('Training data')
 st.dataframe(dataFile)
 
-# 加载预训练模型和交叉验证结果
+# Load pretrained model and cross-validation results
 regr = joblib.load('model.pkl')
 pt = joblib.load('scaler.pkl')
 x_pt = pt.transform(x)
@@ -50,23 +50,71 @@ ax.set_ylabel('Predicted', fontsize=12)
 ax.axis([0, 90, 0, 90])
 st.pyplot(fig)
 
+# Predict your own data
 st.subheader('Predict your own data')
-uploaded_file = st.file_uploader("Upload a csv file; The file should include contents of SiO2, TiO2, Al2O3, FeO, MnO, MgO, CaO, Na2O, K2O, P2O5, La, Ce, Pr, Nd, Sm, Eu, Gd, Tb, Dy, Ho, Er, Tm, Yb, Lu, Sr, Y, Rb, Ba, Hf, Nb, Ta and Th, without NaN value")
+
+# Download input template
+template_df = pd.DataFrame(columns=Features)
+st.download_button(
+    label="📥 Download input template (CSV)",
+    data=template_df.to_csv(index=False),
+    file_name='input_template.csv',
+    mime='text/csv'
+)
+
+uploaded_file = st.file_uploader(
+    "Upload a CSV file with the following features: " + ", ".join(Features) + ". No NaN values allowed.",
+    type=['csv']
+)
+
 if uploaded_file is not None:
     Data = pd.read_csv(uploaded_file)
-    X = DataFrame(Data, columns=Features)
-    X_pt = pt.transform(X)
-    Predicting_results = regr.predict(X_pt)
-    Predicting_thickness = pd.DataFrame(Predicting_results, columns=['Crustal thickness/km'])
-    st.dataframe(Predicting_thickness)
 
-    def convert_df(df):
-        return df.to_csv()
-    st.download_button(
-        label="Download predicting results as CSV",
-        data=convert_df(Predicting_thickness),
-        file_name='Predicting_thickness.csv',
-        mime='text/csv')
+    # Preview uploaded data
+    st.write("**Preview of uploaded data:**")
+    st.dataframe(Data.head())
+
+    # Check for missing columns
+    missing_features = [f for f in Features if f not in Data.columns]
+    if missing_features:
+        st.error(f"Missing columns: {missing_features}. Please check your file.")
+    # Check for NaN values
+    elif Data[Features].isnull().any().any():
+        nan_cols = Data[Features].columns[Data[Features].isnull().any()].tolist()
+        st.error(f"NaN values detected in columns: {nan_cols}. Please clean your data.")
+    else:
+        X = DataFrame(Data, columns=Features)
+        X_pt = pt.transform(X)
+        Predicting_results = regr.predict(X_pt)
+
+        # Merge input data with prediction results
+        Result_df = Data.copy()
+        Result_df['Predicted_Crustal_Thickness_km'] = Predicting_results
+
+        st.write("**Prediction results:**")
+        st.dataframe(Result_df)
+
+        # Plot spatial distribution if lat/lon columns exist
+        lat_col = next((c for c in Data.columns if c.lower() in ['lat', 'latitude']), None)
+        lon_col = next((c for c in Data.columns if c.lower() in ['lon', 'long', 'longitude']), None)
+        if lat_col and lon_col:
+            st.write("**Spatial distribution of predicted crustal thickness:**")
+            fig2, ax2 = plt.subplots(figsize=(8, 5))
+            sc = ax2.scatter(Data[lon_col], Data[lat_col], c=Predicting_results, cmap='RdYlBu_r', s=30)
+            plt.colorbar(sc, ax=ax2, label='Crustal Thickness (km)')
+            ax2.set_xlabel('Longitude')
+            ax2.set_ylabel('Latitude')
+            ax2.set_title('Predicted Crustal Thickness')
+            st.pyplot(fig2)
+
+        # Download prediction results
+        st.download_button(
+            label="📤 Download prediction results (CSV)",
+            data=Result_df.to_csv(index=False),
+            file_name='Predicted_crustal_thickness.csv',
+            mime='text/csv'
+        )
      
+
 
 
