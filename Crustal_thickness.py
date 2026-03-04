@@ -54,10 +54,19 @@ st.pyplot(fig)
 # Predict your own data
 st.subheader('Predict your own data')
 
-# Single download template with all optional columns labeled
-template_cols = ['Latitude (degrees, -90 to 90, optional)', 'Longitude (degrees, -180 to 180, optional)', 'Age (Ma, optional)'] + Features
+st.info(
+    'Three optional columns can be included in your input file for visualization purposes only — '
+    'they do not participate in the prediction:\n\n'
+    '- **Latitude**: degrees, range -90 to 90\n'
+    '- **Longitude**: degrees, range -180 to 180\n'
+    '- **Age**: Ma (million years ago)\n\n'
+    'If Latitude and Longitude are provided, a spatial map will be displayed. '
+    'If Age is also provided, an Age vs Predicted Crustal Thickness plot will be displayed.'
+)
+
+# Single download template with optional columns labeled
+template_cols = ['Latitude (optional)', 'Longitude (optional)', 'Age (optional)'] + Features
 template_df = pd.DataFrame(columns=template_cols)
-st.info('Latitude, Longitude and Age are optional. If Latitude and Longitude are provided, a spatial map will be displayed. If Age is also provided, an Age vs Crustal Thickness plot will be displayed.')
 st.download_button(
     label="📥 Download input template (CSV)",
     data=template_df.to_csv(index=False),
@@ -147,6 +156,7 @@ if uploaded_file is not None:
             mime='text/csv'
         )
      
+
 
 
 
