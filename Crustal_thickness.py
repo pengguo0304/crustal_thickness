@@ -133,15 +133,8 @@ if uploaded_file is not None:
             age_values = Result_df[age_col].values
             thickness_values = Result_df['Predicted_Crustal_Thickness_km'].values
 
-            # Linear least squares fit
-            coeffs = np.polyfit(age_values, thickness_values, 1)
-            fit_line = np.poly1d(coeffs)
-            age_sorted = np.linspace(age_values.min(), age_values.max(), 200)
-
             fig_age, ax_age = plt.subplots(figsize=(8, 5))
             ax_age.scatter(age_values, thickness_values, color='r', s=30, label='Predicted data')
-            ax_age.plot(age_sorted, fit_line(age_sorted), color='b', linestyle='--', lw=2,
-                        label=f'Linear fit: y = {coeffs[0]:.3f}x + {coeffs[1]:.3f}')
             ax_age.set_xlabel('Age (Ma)', fontsize=12)
             ax_age.set_ylabel('Predicted Crustal Thickness (km)', fontsize=12)
             ax_age.set_title('Age vs Predicted Crustal Thickness', fontsize=13)
@@ -156,6 +149,7 @@ if uploaded_file is not None:
             mime='text/csv'
         )
      
+
 
 
 
