@@ -26,18 +26,19 @@ y = dataFile.Crustal_Thickness
 st.subheader('Training data')
 st.dataframe(dataFile)
 
-# Load pretrained model
+# 加载预训练模型和交叉验证结果
 regr = joblib.load('model.pkl')
 pt = joblib.load('scaler.pkl')
 x_pt = pt.transform(x)
+y_predict = np.load('y_cv_predict.npy')
+y_true = np.load('y_true.npy')
 
-y_predict = regr.predict(x_pt)
-r2_test = r2_score(y, y_predict)
-RMSE = mean_squared_error(y, y_predict)**0.5
+r2_test = r2_score(y_true, y_predict)
+RMSE = mean_squared_error(y_true, y_predict)**0.5
 
 st.subheader('Modeling result')
 fig, ax = plt.subplots(figsize=(6,6))
-ax.scatter(y, y_predict, 25, color='r')
+ax.scatter(y_true, y_predict, 25, color='r')
 ax.plot([0, 90], [0, 90], linestyle='--', lw=2, color='b', alpha=.8)
 ax.plot([10, 90], [0, 80], linestyle='--', lw=2, color='g', alpha=.5)
 ax.plot([0, 80], [10, 90], linestyle='--', lw=2, color='g', alpha=.5)
@@ -67,4 +68,5 @@ if uploaded_file is not None:
         file_name='Predicting_thickness.csv',
         mime='text/csv')
      
+
 
