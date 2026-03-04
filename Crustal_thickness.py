@@ -11,6 +11,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.express as px
 import joblib
 from sklearn.metrics import r2_score, mean_squared_error
 
@@ -53,8 +54,10 @@ st.pyplot(fig)
 # Predict your own data
 st.subheader('Predict your own data')
 
-# Download input template
-template_df = pd.DataFrame(columns=Features)
+# Download input template (with optional lat/lon columns)
+template_cols = ['Latitude (optional)', 'Longitude (optional)'] + Features
+template_df = pd.DataFrame(columns=template_cols)
+st.info('Template includes optional Latitude and Longitude columns. If provided, a map of predicted crustal thickness will be displayed.')
 st.download_button(
     label="📥 Download input template (CSV)",
     data=template_df.to_csv(index=False),
@@ -63,7 +66,7 @@ st.download_button(
 )
 
 uploaded_file = st.file_uploader(
-    "Upload a CSV file with the following features: " + ", ".join(Features) + ". No NaN values allowed.",
+    "Upload a CSV file with the following features: " + ", ".join(Features) + ". No NaN values allowed. Latitude/Longitude columns are optional.",
     type=['csv']
 )
 
@@ -94,18 +97,24 @@ if uploaded_file is not None:
         st.write("**Prediction results:**")
         st.dataframe(Result_df)
 
-        # Plot spatial distribution if lat/lon columns exist
+        # Plot map if lat/lon columns exist
         lat_col = next((c for c in Data.columns if c.lower() in ['lat', 'latitude']), None)
         lon_col = next((c for c in Data.columns if c.lower() in ['lon', 'long', 'longitude']), None)
         if lat_col and lon_col:
             st.write("**Spatial distribution of predicted crustal thickness:**")
-            fig2, ax2 = plt.subplots(figsize=(8, 5))
-            sc = ax2.scatter(Data[lon_col], Data[lat_col], c=Predicting_results, cmap='RdYlBu_r', s=30)
-            plt.colorbar(sc, ax=ax2, label='Crustal Thickness (km)')
-            ax2.set_xlabel('Longitude')
-            ax2.set_ylabel('Latitude')
-            ax2.set_title('Predicted Crustal Thickness')
-            st.pyplot(fig2)
+            fig_map = px.scatter_geo(
+                Result_df,
+                lat=lat_col,
+                lon=lon_col,
+                color='Predicted_Crustal_Thickness_km',
+                color_continuous_scale='RdYlBu_r',
+                size_max=10,
+                projection='natural earth',
+                title='Predicted Crustal Thickness',
+                labels={'Predicted_Crustal_Thickness_km': 'Crustal Thickness (km)'}
+            )
+            fig_map.update_traces(marker=dict(size=8))
+            st.plotly_chart(fig_map, use_container_width=True)
 
         # Download prediction results
         st.download_button(
@@ -115,6 +124,7 @@ if uploaded_file is not None:
             mime='text/csv'
         )
      
+
 
 
 
