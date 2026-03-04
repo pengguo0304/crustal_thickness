@@ -54,19 +54,43 @@ st.pyplot(fig)
 # Predict your own data
 st.subheader('Predict your own data')
 
-# Download input template (with optional lat/lon columns)
-template_cols = ['Latitude (optional)', 'Longitude (optional)'] + Features
-template_df = pd.DataFrame(columns=template_cols)
-st.info('Template includes optional Latitude and Longitude columns. If provided, a map of predicted crustal thickness will be displayed.')
-st.download_button(
-    label="📥 Download input template (CSV)",
-    data=template_df.to_csv(index=False),
-    file_name='input_template.csv',
+# Download templates
+st.write("**Download input templates:**")
+col1, col2, col3 = st.columns(3)
+
+# Template 1: features only
+template_1 = pd.DataFrame(columns=Features)
+col1.download_button(
+    label="📥 Template (features only)",
+    data=template_1.to_csv(index=False),
+    file_name='template_features_only.csv',
     mime='text/csv'
 )
 
+# Template 2: with lat/lon
+template_2_cols = ['Latitude (degrees, -90 to 90)', 'Longitude (degrees, -180 to 180)'] + Features
+template_2 = pd.DataFrame(columns=template_2_cols)
+col2.download_button(
+    label="📥 Template (with Lat/Lon)",
+    data=template_2.to_csv(index=False),
+    file_name='template_with_latlon.csv',
+    mime='text/csv'
+)
+
+# Template 3: with lat/lon and age
+template_3_cols = ['Latitude (degrees, -90 to 90)', 'Longitude (degrees, -180 to 180)', 'Age (Ma)'] + Features
+template_3 = pd.DataFrame(columns=template_3_cols)
+col3.download_button(
+    label="📥 Template (with Lat/Lon/Age)",
+    data=template_3.to_csv(index=False),
+    file_name='template_with_latlon_age.csv',
+    mime='text/csv'
+)
+
+st.info('Latitude: degrees, range -90 to 90. Longitude: degrees, range -180 to 180. Age: Ma (million years ago). These three columns are optional.')
+
 uploaded_file = st.file_uploader(
-    "Upload a CSV file with the following features: " + ", ".join(Features) + ". No NaN values allowed. Latitude/Longitude columns are optional.",
+    "Upload a CSV file with the following features: " + ", ".join(Features) + ". No NaN values allowed. Latitude, Longitude and Age columns are optional.",
     type=['csv']
 )
 
@@ -81,7 +105,7 @@ if uploaded_file is not None:
     missing_features = [f for f in Features if f not in Data.columns]
     if missing_features:
         st.error(f"Missing columns: {missing_features}. Please check your file.")
-    # Check for NaN values
+    # Check for NaN values in feature columns
     elif Data[Features].isnull().any().any():
         nan_cols = Data[Features].columns[Data[Features].isnull().any()].tolist()
         st.error(f"NaN values detected in columns: {nan_cols}. Please clean your data.")
@@ -97,9 +121,12 @@ if uploaded_file is not None:
         st.write("**Prediction results:**")
         st.dataframe(Result_df)
 
-        # Plot map if lat/lon columns exist
-        lat_col = next((c for c in Data.columns if c.lower() in ['lat', 'latitude']), None)
-        lon_col = next((c for c in Data.columns if c.lower() in ['lon', 'long', 'longitude']), None)
+        # Detect optional columns
+        lat_col = next((c for c in Data.columns if c.lower().startswith('lat')), None)
+        lon_col = next((c for c in Data.columns if c.lower().startswith('lon')), None)
+        age_col = next((c for c in Data.columns if c.lower().startswith('age')), None)
+
+        # Plot spatial map if lat/lon exist
         if lat_col and lon_col:
             st.write("**Spatial distribution of predicted crustal thickness:**")
             fig_map = px.scatter_geo(
@@ -108,13 +135,33 @@ if uploaded_file is not None:
                 lon=lon_col,
                 color='Predicted_Crustal_Thickness_km',
                 color_continuous_scale='RdYlBu_r',
-                size_max=10,
                 projection='natural earth',
                 title='Predicted Crustal Thickness',
                 labels={'Predicted_Crustal_Thickness_km': 'Crustal Thickness (km)'}
             )
             fig_map.update_traces(marker=dict(size=8))
             st.plotly_chart(fig_map, use_container_width=True)
+
+        # Plot Age vs Predicted Crustal Thickness if Age exists
+        if age_col:
+            st.write("**Age vs Predicted Crustal Thickness:**")
+            age_values = Result_df[age_col].values
+            thickness_values = Result_df['Predicted_Crustal_Thickness_km'].values
+
+            # Linear least squares fit
+            coeffs = np.polyfit(age_values, thickness_values, 1)
+            fit_line = np.poly1d(coeffs)
+            age_sorted = np.linspace(age_values.min(), age_values.max(), 200)
+
+            fig_age, ax_age = plt.subplots(figsize=(8, 5))
+            ax_age.scatter(age_values, thickness_values, color='r', s=30, label='Predicted data')
+            ax_age.plot(age_sorted, fit_line(age_sorted), color='b', linestyle='--', lw=2,
+                        label=f'Linear fit: y = {coeffs[0]:.3f}x + {coeffs[1]:.3f}')
+            ax_age.set_xlabel('Age (Ma)', fontsize=12)
+            ax_age.set_ylabel('Predicted Crustal Thickness (km)', fontsize=12)
+            ax_age.set_title('Age vs Predicted Crustal Thickness', fontsize=13)
+            ax_age.legend(fontsize=10)
+            st.pyplot(fig_age)
 
         # Download prediction results
         st.download_button(
@@ -124,6 +171,7 @@ if uploaded_file is not None:
             mime='text/csv'
         )
      
+
 
 
 
